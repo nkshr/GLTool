@@ -11,21 +11,26 @@ namespace nkgl
 #define ToRadian(x) ((x) * M_PI / 180.0)
 #define ToDegree(x) ((x) * 180.0 / M_PI) 
 
-	template <typename T>
-	struct Vec3
+	struct Vec3f
 	{
-		T x, y, z;
+		float x, y, z;
 
-		Vec3()
+		Vec3f()
 		{
-		};
+			x = 0.0f;
+			y = 0.0f;
+			z = 0.0f;
+		}
 		
-		Vec3(T x, T y, T z)
+		Vec3f(float x, float y, float z)
 		{
 			this->x = x;
 			this->y = y;
 			this->z = z;
 		}
+
+		void normalize();
+		Vec3f cross(Vec3f right);
 	};
 
 	class Mat
@@ -33,47 +38,63 @@ namespace nkgl
 	public:
 		virtual void transpose() = 0;
 		virtual void print() = 0;
+		virtual void eye() = 0;
 	};
 
-	template <typename T>
-	class Mat4x4 : public Mat
+	class Mat4x4f : public Mat
 	{
 	public:
-		T m[4][4];
-		
+		float m[4][4];
+		//friend Mat4x4f operator*(Mat4x4f& left, Mat4x4f& right);
 		void transpose(){}
-		
-		void  print()
-		{
-			char str[200];
-			sprintf(str, 
-				"%f, %f, %f, %f, \n," 
-				"%f, %f, %f, %f, \n,"
-				"%f, %f, %f, %f, \n,"
-				"%f, %f, %f, %f \n", 
-				m[0][0], m[0][1], m[0][2], m[0][3], 
-				m[1][0], m[1][1], m[1][2], m[1][3], 
-				m[2][0], m[2][1], m[2][2], m[2][3], 
-				m[3][0], m[3][1], m[3][2], m[3][3]);
-			cout << str << endl;
-		}
-		inline Mat4x4 operator*(Mat4x4& right)
-		{
-			Mat4x4 ret;
-			for (unsigned int i = 0; i < 4; ++i)
-			{
-				for (unsigned int j = 0; j < 4; ++j)
-				{
-					ret.m[i][j] = m[i][0] * right.m[0][j] +
-						m[i][1] * right.m[1][j] +
-						m[i][2] * right.m[2][j] +
-						m[i][3] * right.m[3][j];
-				}
-			}
-			return ret;
-		}
-
+		void print();
+		Mat4x4f operator*(Mat4x4f& right);
+		void eye();
 	};
 
+	class Mat2x2f :public Mat
+	{
+	public:
+		float m[2][2];
 
+		void transpose(){}
+		void print();
+		float det();
+		void eye();
+	};
+
+	struct Quaternion
+	{
+		float w, x, y, z;
+		
+		Quaternion()
+		{
+			x = 0.0f;
+			y = 0.0f;
+			z = 0.0f;
+		}
+
+		Quaternion(float _w, float _x, float _y, float _z)
+		{
+			w = _w;
+			x = _x;
+			y = _y;
+			z = _z;
+		}
+
+		Quaternion(float _w, Vec3f vec)
+		{
+			vec.normalize();
+
+			w = _w;
+			x = vec.x;
+			y = vec.y;
+			z = vec.z;
+		}
+
+		Quaternion conjugate();
+	};
+
+	Quaternion operator*(const Quaternion& l, const Quaternion& r);
+	void qrotate();
 }

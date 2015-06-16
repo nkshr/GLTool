@@ -10,12 +10,14 @@ struct PpmInfo
 class Pipeline
 {
 private:
-	Mat4x4<float> tmat, rmat, smat, ppmat, final;
+	Mat4x4f tmat, rmat, smat, ppmat, final, cam_tmat_;
 public:
 	Pipeline();
-	void translate(float x, float y, float z);
-	void rotate(float x, float y, float z);
+	void translate_obj(float x, float y, float z);
+	void rotate_obj(float xdeg, float ydeg, float zdeg);
 	void set_ppm(PpmInfo ppm_info);	//set perspective projection matrix.
 	void do_scaling(float scale);
 	const float* get_transformation();
+	void rotate_cam();
+	void translate_cam(Vec3f position);
 };
